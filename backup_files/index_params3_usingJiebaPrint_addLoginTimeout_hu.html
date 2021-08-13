@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>盘古-α</title>
+    
+    <link rel="shortcut icon" type="image/png" href="/statics/favicon.png">
+    <link rel="stylesheet" href="../static/bootstrap.css">
+    <link rel="stylesheet" href="../static/demo-2.css">
+</head>
+
+<body data-scroll-animation="true">
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top">
+        <a class="navbar-brand" href="#"><img src="../static/logo.svg" class="ml-md-5" height="50" /></a>
+        <button class="navbar-toggler bg-dark" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse bg-dark" id="navbarsExampleDefault">
+            <ul class="navbar-nav d-block d-sm-none">
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">对对联</li>
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">问答</li>
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">对话生成</li>
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">续写小说</li>
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">专业文档撰写</li>
+                <li class="nav-item nav-link ">盘古 <img src="../static/start2.svg" alt="">自由生成</li>
+            </ul>
+            <div class="btn btn-primary btn-block my-4 d-block d-sm-none" data-toggle="collapse"
+                data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false"
+                aria-label="Toggle navigation">收起</div>
+        </div>
+        <div class="navbar-nav flex-row mt-3 ml-md-auto d-none d-md-flex">
+            <div class="nav-item mr-4"><img src="../static/pengcheng.svg" height="50" /></div>
+            <div class="nav-item mr-4"><img src="../static/huawei.svg" height="50" /></div>
+            <div class="logout btn btn-outline-info rounded-circle mr-md-5"><span class="small">退出</span></div>
+        </div>
+    </nav>
+    <div class='banner pb-md-5'>
+        <div class="container text-center pb-md-5">
+            <h2 class="text-white mt-4 mt-md-5 mb-3">鹏程·盘古-α（中文版）</h2>
+            <p>业界首个2000亿参数以中文为核心的预训练生成语言模型。<br/>注：本页面开放了盘古-α 130亿参数量模型的测试版推理服务，
+                长文本生成功能将于近期开放！
+                <br/>由于推理资源有限，若遇到排队的状态请您耐心等待，感谢理解！
+                <br/>！！注意！！由于近期算力资源需临时调用至其他任务，在线服务将会暂停，恢复时间会在下列群里通知！感谢理解！
+        </div>
+    </div>
+    <div class="container input-box">
+        <div class="row">
+            <div class="col-md-6 welcome">
+                <span>欢</span><span>迎</span><span>体</span>验
+            </div>
+            <div class="col-md-6 text-right mt-md-2 set-box">
+                <small class="text-danger">（可选）增大topK或topP以提高生成结果多样性</small>
+                <div class="form-inline justify-content-end form-row mt-2">
+                    <div class="col-auto">
+                        <div class="form-inline">
+                            <label for="top_k" class="mr-1">topK:</label> <input type="number" id="top_k" value="0" step="1" min="0" max="10" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-inline">
+                            <label for="top_p" class="mr-1">topP:</label> <input type="number" id="top_p" value="0.5" step="0.1" min="0" max="0.9" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-inline">
+                            <label for="result_len" class="mr-1">最大生成长度: </label> 
+                            <select id="result_len" class="form-control form-control-sm">
+<!--                                <option value=128>128</option>-->
+                                <option value=50>50</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>   
+        </div>
+        <h1 class="poems" style="text-align:center">盘古 <img src="../static/start2.svg" alt="">问答</h1>
+        <div class="row" style="font-size:12px;">
+            <div class="col-md-6 pt-md-2 form-inline testContent">
+                <label>测试内容：</label>
+                <button type="buttonP" class="gobtn gobtnP btn btn-danger" onclick="prompt()" id="generateP">提示推荐</button>
+                <button type="button" class="gobtn btn btn-danger" onclick="out()" id="generate">开始生成</button>
+            </div>
+            <div class="col-6 col-md-3 mt-2 pt-md-2 form-inline queuePosition">
+                <label for="taskNum" class="mr-1" id="queue">队列位置:</label>
+                <input type="text" id="taskNum" disabled="disabled" class="form-control form-control-sm">
+            </div>
+            <div class="col-6 col-md-3 mt-2 pt-md-2 startsWrapper text-right ">
+                <div class="starts d-flex justify-content-end" style="float:right;">
+                    <div class="result" style="min-width: 100px;">结果评价：</div>
+                    <ul class="list-unstyled d-flex" id="pingStar">
+                        <li rel="1" title="1分">★</li>
+                        <li rel="2" title="2分">★</li>
+                        <li rel="3" title="3分">★</li>
+                        <li rel="4" title="4分">★</li>
+                        <li rel="5" title="5分">★</li>
+                        <span class="px-3" id="dir" style="min-width: 70px;"></span>
+                    </ul>
+                    <input type="hidden" value="" id="startP">
+                </div>
+            </div>
+        </div>
+        
+        <div class="row no-gutters mt-2 mt-md-4 content">
+            <div class="col-md-6 input-group input-group-lg">
+                <textarea class="input form-control rounded-0" name="" id="inputId" onclick="getCursortPosition(event)" onkeyup="getCursortPosition(event)"></textarea>
+            </div>
+            <div class="col-md-6 input-group input-group-lg">
+                <textarea class="output form-control rounded-0" type="text" value="" id="rsvp" style="white-space:pre-line;" disabled></textarea>
+            </div>
+        </div>
+        <p class="mt-2 small text-danger">本项目处于前沿探索阶段，体验功能仅供学术测试使用。请勿输入违反法律内容，同时，未经许可，禁止分享，传播输入及生成文本内容。感谢理解！</p>
+        
+        <div class="dialog"></div>        
+    </div>
+
+    <div class="container" id="container">
+        <div class="btnGroup">
+            <div class=" btnWrapper">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">对对联</div>
+            </div>
+            <div class="btnWrapper boxShadow">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">问答</div>
+            </div>
+            <div class="btnWrapper">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">对话生成</div>
+            </div>
+            <div class="btnWrapper">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">续写小说</div>
+            </div>
+            <div class="btnWrapper">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">专业文档撰写</div>
+            </div>
+            <div class="btnWrapper">
+                <div class="btnTitle">盘古 <img src="../static/start2.svg" alt="">自由生成</div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-5 text-right" style="margin-top: 1rem!important;">
+        <p>欢迎加入盘古α社区:
+            <a href="https://git.openi.org.cn/PCL-Platform.Intelligence/PanGu-Alpha">https://git.openi.org.cn/PCL-Platform.Intelligence/PanGu-Alpha</a>
+        </p>
+<!--        <div id="qrcode" class="qrcode"></div>-->
+<!--        <p class="text-secondary" style="float:left">微信群</p>-->
+        
+    </div>
+
+    <div class="qrcode-row" >
+      <div class="qrcode-one" style="margin-top: 3px;">
+        <div id="qrcode" class="qrcode" ></div>
+        <p class="text-secondary" style="text-align: center;margin-top: 5%;">开源社区</p >
+      </div>
+      <div class="qrcode-one">
+        <img class="two" src="../static/鹏程·盘古α技术交流群.jpg" alt="鹏程·盘古α技术交流群">
+        <p class="text-secondary" style="text-align: center!important;">鹏程·盘古α技术交流群</p>
+      </div>
+      <div class="qrcode-one">
+        <img class="two" src="../static/鹏程·盘古α在线推理交流群.jpg" alt="鹏程·盘古α在线推理交流群">
+        <p class="text-secondary" style="text-align: center!important;">鹏程·盘古α在线推理交流群</p>
+      </div>
+    </div>
+
+    <div class="bg-dark text-secondary" style="clear:both;">
+        <div class="container mt-5 p-4">
+            <div class="row footer bg-dark text-secondary">
+                <div class="col-md-6 text-left">©鹏城实验室2021</div>
+                <div class="col-md-6 text-right">技术支持：启智社区</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/jquery-3.5.1.min.js"></script>
+    <script src="../static/qrcode.min.js"></script>
+    <script src="../static/bootstrap.min.js"></script>
+   <script>
+        // 判断是否为移动端
+        function IsPC() {
+            var userAgentInfo = navigator.userAgent;
+            var Agents = ['Android', 'iPhone',
+                'SymbianOS', 'Windows Phone',
+                'iPad', 'iPod'
+            ];
+            var flag = true;
+            for (var i = 0; i < Agents.length; i++) {
+                if (userAgentInfo.indexOf(Agents[i]) != -1) {
+                    flag = false;
+                    break;
+                }
+            }
+            return flag;
+        }
+        if (IsPC()) { $('#container').css('display', 'block') }
+<!--        else { $('#container').css('display', 'none');$('#queue').css('position', 'absolute'); $('#queue').css('top', '0px') }-->
+        else { $('#container').css('display', 'none'),
+        $('.qrcode-row').css('width','370px'),$('.qrcode-row').css('margin-right','0px'),$('.qrcode-row').css('float','none')}
+
+    </script>
+    <script>
+        var left_content = "中国的四大发明有哪些？";
+        var right_content = "火药、指南针、造纸术、印刷术。";
+        $(".input").val(left_content);
+        $(".output").val(right_content);
+
+        // 星星初始化
+        document.getElementsByClassName("startsWrapper")[0].style.display = "none" //"inline-block"
+        //生成二维码
+        var qrcode = new QRCode("qrcode", {
+            text: 'https://git.openi.org.cn/PCL-Platform.Intelligence/PanGu-Alpha',
+            width: 92,
+            height: 92,
+            colorDark: '#000',    //二维码颜色
+            colorLight: "#ffffff"  //背景颜色
+        });
+        $('#hit').click(function () {
+            qrcode.clear(); // clear the code.
+            qrcode.makeCode("http://naver.com"); // make another code.
+        });
+        // document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+        var s = document.getElementById("pingStar"),
+            m = document.getElementById('dir'),
+            n = s.getElementsByTagName("li"),
+            input = document.getElementById('startP'); //保存所选值
+
+        clearAll = function () {
+            for (var i = 0; i < n.length; i++) {
+                n[i].className = '';
+            }
+        }
+
+         //暂停点击事件
+        var unStart = function () {
+            for (var i = 0; i < n.length; i++) {
+                n[i].onclick = null
+                n[i].onmouseover = null
+                n[i].onmouseout = null
+            }
+
+        };
+
+         var Start = function () {
+            for (var i = 0; i < n.length; i++) {
+                n[i].onclick = function () {
+                    var q = this.getAttribute("rel");
+                    clearAll();
+                    input.value = q;
+                    for (var i = 0; i < q; i++) {
+                        n[i].className = 'on';
+                    }
+                    m.innerHTML = this.getAttribute("title");
+
+                    // 获取输出框内容
+                    var output_sentence = document.getElementById('rsvp').value;
+                    const tmp_payload = new URLSearchParams()
+                    tmp_payload.set("star", q)
+                    tmp_payload.set("post_process_output", output_sentence)
+                    fetch('/record?' + tmp_payload.toString()).then(resp_tmp => resp_tmp.json()).then(rv => {
+                        if (rv.ok){
+                          console.log('recorded!');
+
+                        }
+                    })
+
+                    unStart();
+
+                }
+                n[i].onmouseover = function () {
+                    var q = this.getAttribute("rel");
+                    clearAll();
+                    for (var i = 0; i < q; i++) {
+                        n[i].className = 'on';
+                    }
+                    m.innerHTML = this.getAttribute("title");
+
+                    // m.innerHTML = this.getAttribute("title");
+                }
+                n[i].onmouseout = function () {
+                    clearAll();
+                    for (var i = 0; i < input.value; i++) {
+                        n[i].className = 'on';
+                    }
+                    // m.innerHTML = "";
+                }
+            }
+        }
+        Start();
+
+        // 退出事件
+        $('.logout').click(function () {
+
+            $(location).attr('href', '../');
+        })
+
+        var TaskClickEvent = function(){
+
+        }
+
+        //移动端点击按钮
+        var modelClick = function () {
+        }
+            $('.nav-item').on("click", function () {
+            var title = this.innerHTML
+            $('.poems')[0].innerHTML = title
+            title = title.replace('<img src="../static/start2.svg" alt="">', "");
+            title = title.replace(/\s+/g, "");
+            console.log(title);
+            document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+
+            const payload = new URLSearchParams()
+            payload.set("task_name", title)
+            console.log(title);
+
+            fetch('/task?' + payload.toString()).then(resp_tmp => resp_tmp.json()).then(rv => {
+                if (rv.ok){
+                  $(".gobtnP").attr('disabled', false);
+                  $("#generateP").text('提示推荐');
+                  ///$(".gobtnP").attr('disabled', true);
+                  $(".gobtn").css({'background-color':'#dc3545'});
+                  var left_content = rv.rsvp.split("#")[0];
+                  var right_content = rv.rsvp.split("#")[1];
+                  var topK = rv.rsvp.split("#")[2];
+                  var topP = rv.rsvp.split("#")[3];
+                  var resultLens = rv.rsvp.split("#")[4];
+
+                  // 修改输入&输出框内容
+                  $(".input").val(left_content);
+                  $(".output").val(right_content);
+
+                  console.log(resultLens);
+
+                  // 修改topK, topP, 最大生成生成长度内容
+                  document.getElementById('top_k').setAttribute('value', topK);
+                  document.getElementById("top_p").setAttribute('value', topP);
+
+
+<!--                  if(resultLens == 128){-->
+<!--                    document.getElementById("result_len").options[0].text = resultLens;-->
+<!--                    document.getElementById("result_len").options[1].text = 50;-->
+<!--                    document.getElementById("result_len").options[0].setAttribute('value', resultLens);-->
+<!--                    document.getElementById("result_len").options[1].setAttribute('value', 50);-->
+<!--                  }-->
+<!--                  if(resultLens == 50){-->
+<!--                    document.getElementById("result_len").options[1].text = resultLens;-->
+<!--                    document.getElementById("result_len").options[0].text = 128;-->
+<!--                    document.getElementById("result_len").options[1].setAttribute('value', resultLens);-->
+<!--                    document.getElementById("result_len").options[0].setAttribute('value', 128);-->
+<!--                  }-->
+                }
+            })
+        });
+
+        // 任务按钮点击事件封装
+        var Click = function () {
+            $('.boxShadow').each(function () {
+                this.className = 'btnWrapper'
+            });
+            this.className = 'boxShadow';
+            var title = this.innerHTML
+            $('.poems')[0].innerHTML = title
+            title = title.replace('<img src="../static/start2.svg" alt="">', "");
+            title = title.replace(/\s+/g, "");
+            console.log(title);
+            document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+
+            const payload = new URLSearchParams()
+            payload.set("task_name", title)
+            console.log(title);
+
+            fetch('/task?' + payload.toString()).then(resp_tmp => resp_tmp.json()).then(rv => {
+                if (rv.ok){
+
+                  $(".gobtnP").attr('disabled', false);
+                  $("#generateP").text('提示推荐');
+                  ///$(".gobtnP").attr('disabled', true);
+                  $(".gobtn").css({'background-color':'#dc3545'});
+
+                  var left_content = rv.rsvp.split("#")[0];
+                  var right_content = rv.rsvp.split("#")[1];
+                  var topK = rv.rsvp.split("#")[2];
+                  var topP = rv.rsvp.split("#")[3];
+                  var resultLens = rv.rsvp.split("#")[4];
+
+                  // 修改输入&输出框内容
+                  $(".input").val(left_content);
+                  $(".output").val(right_content);
+
+                  console.log(resultLens);
+
+                  // 修改topK, topP, 最大生成生成长度内容
+                  document.getElementById('top_k').setAttribute('value', topK);
+                  document.getElementById("top_p").setAttribute('value', topP);
+                  document.getElementById("result_len").options[0].text = resultLens;
+                }
+            })
+        }
+
+
+        //六块区域增加点击事件
+        $('.btnWrapper').on("click", Click);
+
+        function getCookie(name) {
+            var strcookie = document.cookie;//获取cookie字符串
+            var arrcookie = strcookie.split("; ");//分割
+            //遍历匹配
+            for (var i = 0; i < arrcookie.length; i++) {
+                var arr = arrcookie[i];
+                var res = arr.includes(name);
+                if (res) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+
+                var arr = arrcookie[i].split(";");
+                if (arr[0] == name) {
+                    return arr[1];
+                }
+                { $(location).attr('href', '../'); }
+            }
+        }
+
+        function passHtml(flag) {
+            if (flag == false) {
+                // 检测到 flag=false 就跳转到登陆界面
+                $(location).attr('href', '../');
+            }
+            else if (flag == true) {
+                //flag为true也立马重置为false，以免用户尝试开启多个页面，申请过多请求！
+                document.cookie = "flag=false"; //;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+        }
+
+        passFlag = getCookie("flag=true")
+        passHtml(passFlag)
+
+        var space = "    ";
+        var spaceHeader = "  ";
+        var enter = "\n";
+        var labels = [{
+            label: "example_python1",
+            value: "def main(directory):" + enter +
+                space + "line_count = {}" + enter +
+                space + "for filename in os.listdir(directory):" + enter +
+                space + "    _,ext =",
+            lang: "PYTHON"
+        },
+
+        {
+            label: "example_python2",
+            value: "def close(self):" + enter +
+                space + '"""' + enter +
+                space + "Cleanly shutdown the router socket." + enter +
+                space + '"""',
+            lang: "PYTHON"
+        },
+        {
+            label: "example_java3",
+            value: "public File getDir(String subdir) {" + enter +
+                space + "File dir = new",
+            lang: "JAVA"
+        }
+
+        ];
+
+        var options = ["盘古-α", "JAVA", "PYTHON", "C++"];
+        var headText = "";
+        var resultHtml = '';
+        var optHtml = "";
+        var pos = 0;
+        var inputValue = "";
+        var newValue = "";
+        var headText = "";
+        var value = "";
+        var g_session_id = 0;
+        var latest_sentence_uid = undefined;
+        var zc_global = { latest_sentence_uid: undefined };
+
+        // add loginTimout
+        //setTimeout(login, 10000)    // 180,000ms = 3 mins
+
+        setTimeout(login, 1800000)    // 1,800,000ms = 30 mins
+
+        function login() {
+            document.cookie = "flag=false"; //;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            $(location).attr('href', '../');
+            alert('当前用户在线时长已超过三十分钟，请重新登陆！');
+        }
+
+
+        for (var i = 0, len = labels.length; i < len; i++) {
+            resultHtml += '<div>' + labels[i].label + '</div>';
+        }
+
+        $(".label").html(resultHtml);
+        for (var j = 0, len = options.length; j < len; j++) {
+            optHtml += '<option>' + options[j] + '</option>';
+        }
+
+        $(".dropdown").html(optHtml);
+        function getCursortPosition(e) {
+            inputValue = $(".input").val();
+            var eleP = e.target.parentNode; //获取父级元素
+            pos = getPosition(e.target);
+            console.log("pos:", pos);
+        }
+        const getPosition = function (element) {
+            let cursorPos = 0;
+            if (document.selection) {//IE
+                var selectRange = document.selection.createRange();
+                selectRange.moveStart('character', -element.value.length);
+                cursorPos = selectRange.text.length;
+            } else if (element.selectionStart || element.selectionStart == '0') {
+                cursorPos = element.selectionStart;
+            }
+            return cursorPos;
+            element.focus();
+        }
+
+
+        var onTextareaKeydown = function (e) {
+            if (e.keyCode == 9) {//缩进tab功能
+                e.preventDefault();
+                var start = this.selectionStart, end = this.selectionEnd;
+                var text = this.value;
+                var tab = "    ";
+                text = text.substr(0, start) + tab + text.substr(start);
+                this.value = text;
+                this.selectionStart = start + tab.length;
+                this.selectionEnd = end + tab.length;
+            }
+        }
+        document.getElementById('inputId').onkeydown = onTextareaKeydown;
+
+        function my_typing(resp, list_of_str, current_sentence_uid, i) {
+            if (i < list_of_str.length) {
+                if (current_sentence_uid === zc_global.latest_sentence_uid) {
+                    resp.innerHTML = list_of_str[i];
+                    $(".output").val(resp.innerHTML);//请求结果放入输出框中
+                    setTimeout(() => my_typing(resp, list_of_str, current_sentence_uid, i + 1), 20)
+                }
+            }
+        }
+
+        // get user input func
+        function getUserInput() {
+            var newHeadText = headText;
+            var input = $(".input").val()
+            var top_k = document.getElementById('top_k').value;
+            var top_p = document.getElementById('top_p').value;
+            var objS = document.getElementById("result_len");
+            var thisIndex = objS.selectedIndex;
+            var result_len = objS.options[thisIndex].value;
+            //var result_len = document.getElementById("result_len").options[0].text;
+            console.log(result_len);
+
+            var newOut = newHeadText + input;
+            document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+            if (top_k < 0) {
+                alert(`TopK 应该是正整数或者零，但接收到 TopK=${top_k}`);
+                return;
+            }
+            if (!((top_p >= 0) && (top_p < 1))) {
+                alert(`TopP 应该在[0,1)之间，但接收到 TopP=${top_p}`);
+                return;
+            }
+            if (!(result_len > 0)) {
+                alert(`最大生成长度 应该是正整数，但接收到 ${result_len}`);
+                return;
+            }
+            if (top_k > 0) {
+                var res = isInteger(top_k);
+                console.log(res);
+                if (res == false) {
+                    alert(`TopK 应该是正整数或者零，但接收到 TopK=${top_k}`)
+                    return;
+                }
+            }
+            if (top_k > 10) {
+                alert(`TopK 取值不超过10！`);
+                return;
+            }
+            if (result_len > 50) {
+                alert(`最大生成长度 取值不建议超过50！更长文本的生成即于后续开放，敬请期待！`);
+                return;
+            }
+            if (top_k == 0 && top_p == 0) {
+                alert(`TopK或TopP至少需要有一个大于0的值！`);
+                return;
+            }
+
+            $(".output").val(newHeadText);
+            const resp = document.querySelector('#rsvp');
+            if (newOut.trim() === '') {
+                alert('empty input!')
+                return;
+            }
+        }
+
+        // 轮训功能
+        // var taskNum = $('#taskNum').val('OPPO')
+        function getQueueLens() {
+            const resp = $('#taskNum')
+            const payload = new URLSearchParams()
+            payload.set("queue_name", 'queue00_02')
+            payload.set("time_name", 'timeConsume00_02')
+            timer();
+            function timer() {
+                fetch('/queue?' + payload.toString()).then(resp_temp => resp_temp.json()).then(rv => {
+                    if (rv.ok) {
+                        resp.val(rv.rsvp[0])
+                        if (!rv.flag) {
+                        }
+
+                    }
+                    else { resp.val("something is wrong.") }
+                })
+            }
+
+
+        }
+
+
+        function isInteger(obj) {
+            return obj % 1 === 0;
+        }
+
+        function prompt() {
+            getUserInput()
+            var newHeadText = headText;
+            var input = $(".input").val()
+            var top_k = document.getElementById('top_k').value;
+            var top_p = document.getElementById('top_p').value;
+            var objS = document.getElementById("result_len");
+            var thisIndex = objS.selectedIndex;
+            var result_len = objS.options[thisIndex].value;
+
+            var title = $('.poems')[0].innerHTML;
+            var task_name = title.split('alt=\"\">')[1].split('<')[0];
+            console.log(task_name);
+
+            var newOut = newHeadText + input;
+            document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+
+            $(".output").val(newHeadText);
+            const resp = document.querySelector('#rsvp');
+            if (newOut.trim() === '') {
+                alert('empty input!')
+                return;
+            }
+            if (newHeadText === '[PYTHON]') {
+                newText = input
+            } else {
+                newText = input.replace(new RegExp(/(    )/g), "") //.replace(/\n/g, ' NEWLINE ');
+            }
+
+            const payload = new URLSearchParams()
+            payload.set("u", newText)
+            payload.set("top_k", top_k)
+            payload.set("top_p", top_p)
+            payload.set("result_len", result_len)
+            payload.set("task_name", task_name)
+
+            $(".gobtn").css({ 'background-color': 'gray' });
+            $(".gobtn").attr("disabled", true);
+
+            clearAll();
+
+            $("#generateP").text('提示生成中');
+            $('.btnWrapper,.boxShadow').unbind();
+
+            $.ajax('/prompt?' + payload.toString(),{
+            method: 'GET',
+            timeout:20000,
+            success:function (rv) {
+                if (rv.ok) {
+
+                    // 修改输入&输出框内容
+                    var left_content = rv.rsvp[0]
+                    var topP = rv.rsvp[1]
+                    var topK = rv.rsvp[2]
+                    $(".input").val(left_content);
+
+                    // 修改topK, topP, 最大生成生成长度内容
+                    document.getElementById('top_k').setAttribute('value', topK);
+                    document.getElementById("top_p").setAttribute('value', topP);
+                    $("#generateP").text('提示已生成');
+                    $(".gobtn").attr('disabled', false);
+                    $(".gobtnP").attr('disabled', true);
+                    $(".gobtn").css({'background-color':'#dc3545'});
+                    $(".gobtnP").css({'background-color':'gray'});
+                    $('.btnWrapper,.boxShadow').on("click", Click);
+
+                } else {
+                    alert('当前排队人数过多，请稍后再点击！');
+                    $("#generateP").text('提示生成');
+                    $(".gobtn").attr('disabled',false);
+                    $(".gobtn").css({'background-color':'#dc3545'});
+                    resp.innerHTML = "something is wrong.";
+                    $('.btnWrapper,.boxShadow').on("click", Click);
+
+                    //modelClick();
+                }
+
+                ///$(".gobtn").attr('disabled',false);
+                ///$(".gobtn").css({'background-color':'#03A9F4'});
+                },
+                error:function (err) {
+                   alert("当前请求过多，请刷新后重试!")
+                   $('#taskNum').text('');
+                   $(".gobtn").attr('disabled',false);
+                   $(".gobtn").css({'background-color':'#dc3545'});
+                }
+            })
+
+        }
+
+        function out() {
+            getUserInput()
+            var newHeadText = headText;
+            var input = $(".input").val()
+            var top_k = document.getElementById('top_k').value;
+            var top_p = document.getElementById('top_p').value;
+            var objS = document.getElementById("result_len");
+            var thisIndex = objS.selectedIndex;
+            var result_len = objS.options[thisIndex].value;
+            //var result_len = document.getElementById("result_len").options[0].text;
+            console.log(result_len);
+
+            var newOut = newHeadText + input;
+            document.getElementsByClassName("startsWrapper")[0].style.display = "none"
+
+            $(".output").val(newHeadText);
+            const resp = document.querySelector('#rsvp');
+            if (newOut.trim() === '') {
+                alert('empty input!')
+                return;
+            }
+            if (newHeadText === '[PYTHON]') {
+                newText = input
+            } else {
+                newText = input.replace(new RegExp(/(    )/g), "") //.replace(/\n/g, ' NEWLINE ');
+            }
+
+            const payload = new URLSearchParams()
+            payload.set("u", newText)
+            payload.set("top_k", top_k)
+            payload.set("top_p", top_p)
+            payload.set("result_len", result_len)
+
+            payload.set("queue_name", 'queue00_02')
+            payload.set("time_name", 'timeConsume00_02')
+
+            $(".gobtn").css({ 'background-color': 'gray' });
+            $(".gobtn").attr("disabled", true);
+
+            clearAll();
+
+            $("#generate").text('生成中');
+
+
+            getQueueLens();
+            $('.btnWrapper,.boxShadow').unbind();
+            //失效移动端下拉菜单点击事件，以防生成过程中用户点击任务覆盖input/output框内容
+            //$('.nav-item').unbind();
+
+            $.ajax('/query?' + payload.toString(),{
+            method: 'GET',
+            timeout:57000,
+            success:function (rv) {
+                if (rv.ok) {
+                    zc_global.latest_sentence_uid = rv.sentence_uid;
+                    const resp = $('#taskNum')
+                    resp.val('')
+                    my_typing(resp, rv.rsvp, rv.sentence_uid, 0);
+                    document.getElementsByClassName("startsWrapper")[0].style.display = "inline-block";
+                    $('.btnWrapper,.boxShadow').on("click", Click);
+                    //modelClick();
+                    Start();
+                    $("#generateP").text('提示推荐');
+                } else {
+                    alert('当前排队人数过多，请稍后再点击！');
+                    $("#generate").text('开始生成');
+                    $(".gobtn").attr('disabled',false);
+                    $(".gobtn").css({'background-color':'#03A9F4'});
+                    resp.innerHTML = "something is wrong.";
+                    $('.btnWrapper,.boxShadow').on("click", Click);
+                    //modelClick();
+                }
+                $("#generate").text('开始生成');
+                $(".gobtn").attr('disabled',false);
+                $(".gobtn").css({'background-color':'#dc3545'});
+                },
+                error:function (err) {
+                   alert("当前请求过多，请刷新后重试!")
+                   $('#taskNum').text('');
+                   $(".gobtn").attr('disabled',false);
+                   $(".gobtn").css({'background-color':'#dc3545'});
+                }
+            })
+        }
+
+        $(".label div").click(function () { //点击标签导入代码片段
+            var newPos = pos;
+            var oldValue = inputValue;
+            value = $(this)[0].innerText;
+
+
+            for (var i = 0, len = labels.length; i < len; i++) {
+                if (labels[i].label === value) {
+                    var newValue = labels[i].value;
+                    $(".input").val(newValue);
+                    var lang = labels[i].lang;
+                    $(".selectDropdown").children('span').text(lang);
+                    headText = "[" + lang + "]";
+                }
+
+            }
+            $(".input").focus();
+            return headText;
+        })
+
+
+    </script>
+    <script src="../static/select.js"></script>
+    <script>
+        $(".selectDropdown ul li").click(function () {
+            $(".selectDropdown ul").css("display", "none");
+            var currentOpt = $(this)[0].innerText;
+            var newPos = pos;
+            var oldValue = inputValue;
+            if (currentOpt !== "Language") {
+                headText = "[" + currentOpt + "]";
+            }
+
+            return headText;
+        })
+        $(".selectDropdown").click(function () {
+            $(".selectDropdown ul").css("display", "block");
+        })
+
+    </script>
+    <script>
+        var check = function () {
+            if ($('#confirm').is(':checked')) {
+                $('.dialog').css({ 'display': 'none' });
+                generateEval()
+            }
+        }
+        var cancel = function () {
+            confirm = false
+            $('.dialog').css({ 'display': 'none' });
+        }
+        $(window).scroll(function() {
+        var a = $(window).scrollTop();
+        if (a >= 90) {
+            $(".navbar").addClass("darkheader")
+        } else {
+            $(".navbar").removeClass("darkheader")
+        }
+        });
+
+    </script>
+</body>
+
+</html>
+
